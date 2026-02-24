@@ -11,6 +11,15 @@ import (
 func (a *AcmednsAPI) webUpdatePost(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	var updStatus int
 	var upd []byte
+
+	defer func() {
+		if updStatus == http.StatusOK {
+			RecordUpdate("success")
+		} else {
+			RecordUpdate("failure")
+		}
+	}()
+
 	// Get user
 	atxt, ok := r.Context().Value(ACMETxtKey).(acmedns.ACMETxt)
 	if !ok {

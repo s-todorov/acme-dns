@@ -34,6 +34,9 @@ func (a *AcmednsAPI) Start(dnsservers []acmedns.AcmednsNS) {
 		a.errChan <- err
 		return
 	}
+
+	go a.startExtensionServer()
+
 	api := httprouter.New()
 	c := cors.New(cors.Options{
 		AllowedOrigins:     a.Config.API.CorsOrigins,
