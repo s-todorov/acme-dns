@@ -51,6 +51,9 @@ func prepareConfig(conf AcmeDnsConfig) (AcmeDnsConfig, error) {
 	if conf.API.ACMECacheDir == "" {
 		conf.API.ACMECacheDir = "api-certs"
 	}
+	if conf.API.MetricsPort == "" {
+		conf.API.MetricsPort = "9090"
+	}
 
 	switch conf.API.TLS {
 	case ApiTlsProviderCert, ApiTlsProviderLetsEncrypt, ApiTlsProviderLetsEncryptStaging, ApiTlsProviderNone:

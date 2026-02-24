@@ -19,5 +19,5 @@ RUN apk --no-cache add ca-certificates && update-ca-certificates
 
 VOLUME ["/etc/acme-dns", "/var/lib/acme-dns"]
 ENTRYPOINT ["./acme-dns"]
-EXPOSE 53 80 443
+EXPOSE 53 80 443 9090
 EXPOSE 53/udp

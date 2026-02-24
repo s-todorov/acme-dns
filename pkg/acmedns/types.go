@@ -47,6 +47,8 @@ type httpapi struct {
 	CorsOrigins         []string
 	UseHeader           bool   `toml:"use_header"`
 	HeaderName          string `toml:"header_name"`
+	EnableMetrics       bool   `toml:"enable_metrics"`
+	MetricsPort         string `toml:"metrics_port"`
 }
 
 // Logging config

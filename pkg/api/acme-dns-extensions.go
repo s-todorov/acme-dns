@@ -9,9 +9,9 @@ package api
 // startExtensionServer is called as a goroutine from AcmednsAPI.Start().
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -33,27 +33,29 @@ func (a *AcmednsAPI) startExtensionServer() {
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
 	mux.HandleFunc("/healthz", a.extensionHealthzHandler)
+	addr := ":" + a.Config.API.MetricsPort
 	srv := &http.Server{
-		Addr:         ":9090",
+		Addr:         addr,
 		Handler:      mux,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		IdleTimeout:  120 * time.Second,
 	}
-	a.Logger.Infow("Extension server listening", "addr", ":9090")
+	a.Logger.Infow("Extension server listening", "addr", addr)
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		a.errChan <- err
 	}
 }
 
 func (a *AcmednsAPI) extensionHealthzHandler(w http.ResponseWriter, r *http.Request) {
-	dbPath := "/var/lib/acme-dns/acme-dns.db"
 	w.Header().Set("Content-Type", "application/json")
-	if _, err := os.Stat(dbPath); err != nil {
+	ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+	defer cancel()
+	if err := a.DB.GetBackend().PingContext(ctx); err != nil {
 		w.WriteHeader(http.StatusServiceUnavailable)
 		_ = json.NewEncoder(w).Encode(map[string]string{
 			"status": "unhealthy",
-			"error":  "database file not found",
+			"error":  err.Error(),
 		})
 		return
 	}

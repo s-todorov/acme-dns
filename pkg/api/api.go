@@ -35,7 +35,9 @@ func (a *AcmednsAPI) Start(dnsservers []acmedns.AcmednsNS) {
 		return
 	}
 
-	go a.startExtensionServer()
+	if a.Config.API.EnableMetrics {
+		go a.startExtensionServer()
+	}
 
 	api := httprouter.New()
 	c := cors.New(cors.Options{
