@@ -34,7 +34,7 @@ func (a *AcmednsAPI) Start(dnsservers []acmedns.AcmednsNS) {
 		a.errChan <- err
 		return
 	}
-
+	a.Logger.Infow("Extension Metrics:", "state", a.Config.API.EnableMetrics)
 	if a.Config.API.EnableMetrics {
 		go a.startExtensionServer()
 	}

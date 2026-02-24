@@ -11,6 +11,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
@@ -42,7 +43,7 @@ func (a *AcmednsAPI) startExtensionServer() {
 		IdleTimeout:  120 * time.Second,
 	}
 	a.Logger.Infow("Extension server listening", "addr", addr)
-	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		a.errChan <- err
 	}
 }
@@ -63,7 +64,7 @@ func (a *AcmednsAPI) extensionHealthzHandler(w http.ResponseWriter, r *http.Requ
 	_ = json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 }
 
-// RecordUpdate increments the update counter. Called from update.go.
-func RecordUpdate(status string) {
+// recordUpdate increments the update counter. Called from update.go.
+func recordUpdate(status string) {
 	acmednsUpdateTotal.WithLabelValues(status).Inc()
 }
